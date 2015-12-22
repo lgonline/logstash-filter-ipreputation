@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'logstash-filter-ipreputation'
-  s.version = '1.0.0'
+  s.version = '1.1.0'
   s.licenses = ['Apache License (2.0)']
   s.summary = 'A Logstash plugin used to get IP reputation value from a Redis service and enrich the Logstash event.'
   s.description = 'This gem is a logstash plugin required to be installed on top of the Logstash core pipeline using $LS_HOME/bin/plugin install gemname. This gem is not a stand-alone program'

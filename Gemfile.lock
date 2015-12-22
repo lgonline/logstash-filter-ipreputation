@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    logstash-filter-ipreputation (1.0.0)
+    logstash-filter-ipreputation (1.1.0)
       logstash-core (>= 2.0.0, < 3.0.0)
       redis (>= 3.0.0, < 4.0.0)
 

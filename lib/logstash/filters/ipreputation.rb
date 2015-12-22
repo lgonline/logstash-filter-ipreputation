@@ -1,6 +1,7 @@
 # encoding: utf-8
 require 'logstash/filters/base'
 require 'logstash/namespace'
+require 'json/ext'
 
 class LogStash::Filters::Ipreputation < LogStash::Filters::Base
 
@@ -28,15 +29,12 @@ class LogStash::Filters::Ipreputation < LogStash::Filters::Base
   def filter(event)
     begin
       if event[@ip_field_name]
-        # if it's a string like "192.168.0.1, 192.168.0.2", will take first IP
+        @logger.info('In filter event now')
+        # Multiple IP like "192.168.0.1, 192.168.0.2", will take first one
         ip = event[@ip_field_name].split(',')[0]
         @redis ||= connect
-        # if input is a string has comma, will splited by comma and take first element
         reputation = @redis.hgetall(ip)
-        @redis.quit
-        @redis = nil
-        @logger.info('In filter event now')
-        event[@reputation_field_name] = reputation
+        event[@reputation_field_name] = reputation.to_json
         filter_matched(event)
       end
     rescue => e
