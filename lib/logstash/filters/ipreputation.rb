@@ -13,16 +13,22 @@ class LogStash::Filters::Ipreputation < LogStash::Filters::Base
   config :password, :validate => :password
   config :timeout, :validate => :number, :default => 5
   config :reconnect_interval, :validate => :number, :default => 1
+
   # The name used to specify which field of event has IP value
   config :ip_field_name, :validate => :string, :default => 'message'
-  # The name used to add a field into event to represent the reputation
-  config :reputation_field_name, :validate => :string, :default => 'reputation'
+
+  # If true, it will add a behaviour field to event for all behaviour
+  # and add each reputation of behaviour to separated field
+  config :separate_reputation, :validate => :boolean, :default => false
 
 
   public
   def register
     require 'redis'
     @redis = nil
+
+    @reputation = 'reputation'
+    @behaviour = 'behaviour'
   end # def register
 
   public
@@ -34,7 +40,19 @@ class LogStash::Filters::Ipreputation < LogStash::Filters::Base
         ip = event[@ip_field_name].split(',')[0]
         @redis ||= connect
         reputation = @redis.hgetall(ip)
-        event[@reputation_field_name] = reputation.to_json
+        if @separate_reputation
+
+          if reputation.empty?
+            event[@behaviour] = ['unknown']
+          else
+            event[@behaviour] = reputation.keys
+            reputation.each { |k, v|  event[k] = v.to_i}
+          end
+
+        else
+          event[@reputation] = reputation.to_json
+        end
+
         filter_matched(event)
       end
     rescue => e
